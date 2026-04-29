@@ -1,104 +1,384 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Inicio Profesional Médico</title>
-<link rel="stylesheet" href="estilos.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Médico | AYUN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4A90E2;       /* Azul Médico Suave */
+            --primary-dark: #357ABD;
+            --secondary: #FF8C42;    /* Naranja Cálido */
+            --accent: #FFD93D;       /* Amarillo Accent */
+            --bg-body: #F8FAFC;      /* Fondo ultra claro */
+            --bg-card: #FFFFFF;
+            --text-main: #2D3436;
+            --text-muted: #7F8C8D;
+            --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.05);
+            --radius: 16px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
+        
+        body { 
+            background: var(--bg-body); 
+            color: var(--text-main); 
+            height: 100vh; 
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* --- SIDEBAR IZQUIERDA (PC) --- */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-card);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #E2E8F0;
+            transition: all 0.3s ease;
+        }
+
+        .profile-section { text-align: center; margin-bottom: 2rem; }
+        .profile-pic {
+            width: 100px; height: 100px;
+            border-radius: 24px; /* Estilo moderno no tan circular */
+            margin: 0 auto 1rem;
+            background: var(--bg-body);
+            padding: 10px;
+            box-shadow: var(--shadow-sm);
+        }
+        .profile-pic img { width: 100%; height: 100%; object-fit: contain; }
+
+        .name { font-size: 1.2rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
+        .tagline { font-size: 0.75rem; color: var(--secondary); font-weight: 600; text-transform: uppercase; margin-bottom: 1rem; }
+        .description { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+
+        /* --- MAIN CONTENT --- */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
+        
+        .topbar {
+            height: 70px;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: transparent;
+        }
+
+        .welcome-text h1 { font-size: 1.5rem; font-weight: 600; color: #1E293B; }
+
+        .content-area { padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+        /* --- GRID CARDS --- */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .grid-card {
+            background: var(--bg-card);
+            padding: 2.5rem;
+            border-radius: var(--radius);
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid #EDF2F7;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .grid-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .icon-box {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.1));
+        }
+
+        .grid-card span {
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        /* --- PANEL DERECHO (ESPECIALIDADES) --- */
+        .specialty-panel {
+            position: fixed; top: 0; right: 0;
+            height: 100vh; width: 350px;
+            background: var(--primary);
+            color: white; z-index: 3000;
+            transform: translateX(100%);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.1);
+        }
+        .specialty-panel.open { transform: translateX(0); }
+
+        .panel-header {
+            padding: 2rem;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .menu-item { border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .menu-button {
+            width: 100%; padding: 1.5rem 2rem;
+            background: transparent; border: none; color: white;
+            text-align: left; font-weight: 600; cursor: pointer;
+            display: flex; justify-content: space-between;
+            transition: background 0.3s;
+        }
+        .menu-button:hover { background: rgba(0,0,0,0.1); }
+
+        .dropdown { background: rgba(0,0,0,0.1); display: none; padding: 0.5rem 0; }
+        .menu-item.open .dropdown { display: block; }
+        .dropdown a {
+            color: rgba(255,255,255,0.9); padding: 0.8rem 3rem;
+            text-decoration: none; display: block; font-size: 0.9rem;
+        }
+        .dropdown a:hover { color: var(--accent); background: rgba(255,255,255,0.05); }
+
+        /* --- MODALES --- */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(8px);
+            z-index: 5000; display: none;
+            align-items: center; justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white; padding: 2.5rem;
+            border-radius: 24px; max-width: 400px; width: 100%;
+            position: relative; text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .modal-content h3 { margin-bottom: 1.5rem; color: var(--primary); font-size: 1.4rem; }
+
+        .modal-btn {
+            width: 100%; padding: 1rem; margin-bottom: 0.8rem;
+            border: none; border-radius: 12px;
+            font-weight: 600; cursor: pointer; transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        .btn-blue { background: var(--primary); color: white; }
+        .btn-orange { background: var(--secondary); color: white; }
+        .btn-yellow { background: var(--accent); color: var(--text-main); }
+        .modal-btn:hover { opacity: 0.9; transform: scale(1.02); }
+
+        .input-modern {
+            width: 100%; padding: 12px; border-radius: 10px;
+            border: 2px solid #F1F5F9; margin-bottom: 1.5rem;
+            text-align: center; font-size: 1.1rem; outline: none;
+        }
+        .input-modern:focus { border-color: var(--primary); }
+
+        /* --- MOBILE --- */
+        .mobile-header { display: none; }
+        
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .mobile-header {
+                display: flex; align-items: center; justify-content: space-between;
+                padding: 0 1.5rem; height: 70px; background: white;
+                border-bottom: 1px solid #EDF2F7; position: sticky; top: 0; z-index: 1000;
+            }
+            .mobile-header img { width: 35px; border-radius: 8px; }
+            .main-wrapper { height: auto; }
+            .topbar { display: none; }
+            .grid-container { grid-template-columns: 1fr; }
+        }
+
+        .overlay-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.2); display: none; z-index: 2000; }
+        .overlay-bg.active { display: block; }
+    </style>
 </head>
 <body>
 
-  
-<!--  MODALES -->
-<!-- MODAL TIPO USUARIO -->
-<div id="tipoModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:5001; align-items:center; justify-content:center;">
-  <div style="background:#fff; padding:30px 30px 25px; border-radius:14px; text-align:center; min-width:280px; position:relative;">
-    <!-- BOTÓN CERRAR -->
-    <button id="btnCerrarModal"
-      style="position:absolute; top:10px; right:12px; background:none; border:none; font-size:22px; cursor:pointer; color:#888;">
-      ×
-    </button>
+    <div class="overlay-bg" id="overlay" onclick="toggleSpecialtyPanel()"></div>
 
-    <h3 style="margin-top:0; color:#1f6f8b;">¿Qué desea hacer?</h3>
+    <aside class="sidebar">
+        <div class="profile-section">
+            <div class="profile-pic"><img id="logo" src="" alt="Logo"></div>
+            <div class="name" id="nombreCliente"></div>
+            <div class="tagline" id="especialidadesCliente"></div>
+            <div class="description" id="descripcionCliente"></div>
+        </div>
+    </aside>
 
-    <button id="btnSolicitar" style="margin:10px; padding:10px 16px;">CARGAR PACIENTE NUEVO</button>
-    <button id="btnEmitir" style="margin:10px; padding:10px 16px;">EMITIR INFORME</button>
-    <button id="btnEnviarPaciente" style="margin:10px; padding:10px 16px;">ENVIAR FORMULARIO A PACIENTE</button>
-  </div>
-</div>
-<!-- MINI-MODAL ENVIAR A PACIENTE -->
-<div id="modalEnviarPaciente" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:5002; align-items:center; justify-content:center;">
-  <div style="background:#fff; padding:25px 25px 20px; border-radius:14px; text-align:center; min-width:280px; position:relative;">
-    
-    <!-- BOTÓN CERRAR -->
-    <button id="btnCerrarEnviarPaciente"
-      style="position:absolute; top:10px; right:12px; background:none; border:none; font-size:22px; cursor:pointer; color:#888;">
-      ×
-    </button>
+    <div class="main-wrapper">
+        <div class="mobile-header">
+            <img id="logo-mobile" src="" alt="Logo">
+            <span style="font-weight: 800; font-size: 1rem;" id="nombreCliente-mobile"></span>
+            <button onclick="toggleSpecialtyPanel()" style="background:none; border:none; font-size: 1.5rem;">☰</button>
+        </div>
 
-    <h3 style="margin-top:0; color:#1f6f8b;">Enviar enlace al paciente</h3>
-    <p>Ingrese número de WhatsApp (solo números, sin +)</p>
-    <input type="text" id="inputWhatsapp" placeholder="Ej: 5491122334455" style="padding:8px 10px; width:100%; margin-bottom:15px; border-radius:6px; border:1px solid #ccc;">
+        <header class="topbar">
+            <div class="welcome-text">
+                <h1 id="greeting">Panel de Control</h1>
+            </div>
+            <button onclick="toggleSpecialtyPanel()" style="background:var(--primary); color:white; border:none; padding: 10px 20px; border-radius: 10px; cursor:pointer; font-weight:600;">
+                Especialidades ☰
+            </button>
+        </header>
 
-    <button id="btnEnviarWA" style="padding:10px 16px;">ENVIAR</button>
-  </div>
-</div>
-    <!-- FIN MODALES -->
-
-<div class="mobile-header">
-  <img id="logo-mobile" src="" alt="Logo">
-  <span id="nombreCliente-mobile"></span>
-  <button class="mobile-toggle" onclick="toggleSpecialtyPanel()">☰</button>
-</div>
-  
-
-<div class="overlay" id="overlay" onclick="toggleSpecialtyPanel()"></div>
-
-<div class="container">
-
-  <!-- SIDEBAR FIJA -->
-  <aside class="sidebar">
-    <div class="profile-pic">
-      <img id="logo" src="" alt="Logo">
+        <div class="content-area">
+            <div class="grid-container">
+                <a href="#" class="grid-card">
+                    <div class="icon-box">📋</div>
+                    <span>Lista de Pacientes</span>
+                </a>
+                <a href="#" class="grid-card">
+                    <div class="icon-box">📂</div>
+                    <span>Carpeta de Informes</span>
+                </a>
+            </div>
+        </div>
     </div>
-    <div>
-      <div class="name" id="nombreCliente"></div>
-      <div class="specialty" id="especialidadesCliente"></div>
-      <div class="description" id="descripcionCliente"></div>
+
+    <aside class="specialty-panel" id="specialtyPanel">
+        <div class="panel-header">
+            <span style="font-weight: 800; font-size: 1.2rem;">SERVICIOS</span>
+            <button onclick="toggleSpecialtyPanel()" style="background:none; border:none; color:white; font-size:2rem; cursor:pointer;">&times;</button>
+        </div>
+        <div id="sidebar-menu"></div>
+    </aside>
+
+    <div id="tipoModal" class="modal-overlay">
+        <div class="modal-content">
+            <button onclick="cerrarModales()" style="position:absolute; top:15px; right:15px; border:none; background:none; font-size:1.5rem; cursor:pointer; color:#CBD5E1;">&times;</button>
+            <h3>Gestión de Informe</h3>
+            <p style="color:var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem;">Seleccione la acción para el médico seleccionado:</p>
+            <button id="btnSolicitar" class="modal-btn btn-blue">CARGAR PACIENTE</button>
+            <button id="btnEmitir" class="modal-btn btn-orange">EMITIR INFORME</button>
+            <button id="btnEnviarPaciente" class="modal-btn btn-yellow">ENVIAR A PACIENTE</button>
+        </div>
     </div>
-  </aside>
 
-  <div class="main">
-    <header class="topbar">
-      <button class="mobile-toggle" onclick="toggleSpecialtyPanel()">☰</button>
-    </header>
-
-    <div class="content">
-      <div class="grid-container">
-        <a href="#" target="_blank" class="grid-card">
-          <div style="font-size: 40px; margin-bottom: 10px;">📋</div>
-          <span>Lista de Pacientes</span>
-        </a>
-        <a href="#" target="_blank" class="grid-card">
-          <div style="font-size: 40px; margin-bottom: 10px;">📂</div>
-          <span>Carpeta de Informes</span>
-        </a>
-      </div>
+    <div id="modalEnviarPaciente" class="modal-overlay">
+        <div class="modal-content">
+            <button onclick="cerrarModales()" style="position:absolute; top:15px; right:15px; border:none; background:none; font-size:1.5rem; cursor:pointer; color:#CBD5E1;">&times;</button>
+            <h3>Enviar WhatsApp</h3>
+            <p style="color:var(--text-muted); margin-bottom: 1.5rem; font-size: 0.85rem;">El paciente recibirá el link directo.</p>
+            <input type="text" id="inputWhatsapp" class="input-modern" placeholder="5491122334455">
+            <button id="btnEnviarWA" class="modal-btn" style="background:#25D366; color:white;">ENVIAR AHORA</button>
+        </div>
     </div>
-  </div>
 
-  <!-- SIDEBAR DESLIZABLE ESPECIALIDADES -->
-  <aside class="specialty-panel" id="specialtyPanel">
-    <div class="panel-header">
-      <span style="font-weight: 800;">ESPECIALIDADES</span>
-      <button class="close-btn" onclick="toggleSpecialtyPanel()">&times;</button>
-    </div>
-    <div id="sidebar-menu"></div>
-  </aside>
+<script>
+    const CLIENTE = {
+        logo: "",
+        nombre: "ADMINISTRACIÓN CLINICA INDIGO",
+        especialidades: "Plataforma Central",
+        descripcion: "Sistema integral de gestión de solicitudes, emisión de informes y base de datos clínica.",
+        menu: [
+            { nombre:"ECODOPPLER CARDIACO COLOR", links:[{ text:"Dra. Pablo Prueba", id:"zdoctorpruebaecocardio" }]}
+        ],
+        baseURL: "https://script.google.com/macros/s/AKfycbyWDwE7WOCBQJs_Bgw_eyScWJV-QYrdpewaGVnh-5bQSZZ5KyXGASQBPBlqc6APwAJ-Ig/exec"
+    };
 
-</div>
+    function toggleSpecialtyPanel() {
+        document.getElementById('specialtyPanel').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('active');
+    }
 
-<script src="datosCliente.js"></script>
-<script src="general.js"></script>
+    function cerrarModales() {
+        document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+    }
+
+    function construirMenu() {
+        const sidebar = document.getElementById('sidebar-menu');
+        sidebar.innerHTML = "";
+        CLIENTE.menu.forEach(seccion => {
+            const div = document.createElement('div');
+            div.className = "menu-item";
+            const btn = document.createElement('button');
+            btn.className = "menu-button";
+            btn.innerHTML = `${seccion.nombre} <span>▾</span>`;
+            div.appendChild(btn);
+
+            const dropdown = document.createElement('div');
+            dropdown.className = "dropdown";
+            seccion.links.forEach(link => {
+                const a = document.createElement('a');
+                a.href = `${CLIENTE.baseURL}?page=solicitud&medico=${link.id}`;
+                a.textContent = link.text;
+                dropdown.appendChild(a);
+            });
+            div.appendChild(dropdown);
+            sidebar.appendChild(div);
+            btn.onclick = () => div.classList.toggle('open');
+        });
+    }
+
+    let urlPendiente = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        construirMenu();
+        // Inyectar datos
+        document.getElementById('logo').src = CLIENTE.logo;
+        document.getElementById('logo-mobile').src = CLIENTE.logo;
+        document.getElementById('nombreCliente').textContent = CLIENTE.nombre;
+        document.getElementById('nombreCliente-mobile').textContent = CLIENTE.nombre;
+        document.getElementById('especialidadesCliente').textContent = CLIENTE.especialidades;
+        document.getElementById('descripcionCliente').textContent = CLIENTE.descripcion;
+
+        // Saludo dinámico
+        const hrs = new Date().getHours();
+        let greet = "Buenos días";
+        if (hrs >= 12 && hrs <= 18) greet = "Buenas tardes";
+        else if (hrs > 18) greet = "Buenas noches";
+        document.getElementById('greeting').textContent = `${greet}, Bienvenido`;
+    });
+
+    // Lógica de Modales
+    document.addEventListener("click", e => {
+        const a = e.target.closest("a");
+        if (a && a.href.includes("page=solicitud")) {
+            e.preventDefault();
+            urlPendiente = a.href;
+            document.getElementById("tipoModal").style.display = "flex";
+        }
+    });
+
+    document.getElementById("btnSolicitar").onclick = () => {
+        const url = new URL(urlPendiente);
+        url.searchParams.set("page", "solicitud");
+        window.location.href = url.toString();
+    };
+
+    document.getElementById("btnEmitir").onclick = () => {
+        const url = new URL(urlPendiente);
+        url.searchParams.set("page", "profesional");
+        window.location.href = url.toString();
+    };
+
+    document.getElementById("btnEnviarPaciente").onclick = () => {
+        document.getElementById("tipoModal").style.display = "none";
+        document.getElementById("modalEnviarPaciente").style.display = "flex";
+        document.getElementById("inputWhatsapp").value = "549";
+    };
+
+    document.getElementById("btnEnviarWA").onclick = () => {
+        const num = document.getElementById("inputWhatsapp").value.trim();
+        if(!/^\d+$/.test(num)) return alert("Número inválido");
+        const waURL = `https://wa.me/${num}?text=${encodeURIComponent("Por favor complete el formulario: " + urlPendiente)}`;
+        window.open(waURL, "_blank");
+        cerrarModales();
+    };
+</script>
+
 </body>
 </html>
+
+
